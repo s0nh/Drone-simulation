@@ -1,0 +1,9 @@
+# 줄바꿈을 LF로 통일한다.
+# 윈도우에서 받으면 줄 끝에 보이지 않는 문자가 붙어서
+# 컨테이너 안에서 스크립트가 실행되지 않는 문제가 생긴다.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pt  binary
+*.db3 binary

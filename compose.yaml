@@ -1,0 +1,48 @@
+# 시뮬레이션 실행 구성.
+#
+#   docker compose up -d                                     시작
+#   docker compose exec drone python3 tests/takeoff_test.py   코드 실행
+#   docker compose logs -f drone                              드론 로그 보기
+#   docker compose down                                       종료
+#
+# 컨테이너는 하나뿐이며, 그 안에서 드론·가상 공간·카메라 중계·조종이 함께 돈다.
+# 컨테이너 안에서 무엇이 어떤 순서로 켜지는지는 docker/drone/start.sh 를 보면 된다.
+
+name: dronesim
+
+services:
+
+  drone:
+    build:
+      context: ./docker/drone
+      args:
+        PX4_IMAGE: ${PX4_IMAGE}
+    image: dronesim
+    container_name: dronesim
+
+    ports:
+      - "${VIEWER_PORT}:8080"              # 카메라 영상 보기 (브라우저)
+      - "${MAVLINK_GCS_PORT}:18570/udp"    # QGroundControl 접속용
+
+    environment:
+      PX4_SIM_MODEL: ${PX4_SIM_MODEL}          # 띄울 기체 종류
+      PX4_GZ_WORLD: ${PX4_GZ_WORLD}            # 띄울 가상 공간
+      PX4_GZ_MODEL_POSE: ${DRONE_SPAWN_POSE}   # 드론의 처음 위치
+      XRCE_PORT: ${XRCE_PORT}                  # 드론 상태 데이터가 나가는 포트
+      VIEWER_PORT: ${VIEWER_PORT}
+      HEADLESS: "1"                            # Gazebo 창을 띄우지 않음
+
+    volumes:
+      # 우리가 짠 코드. 이미지 안에 넣지 않고 연결하므로 고쳐도 바로 반영된다.
+      - ./tests:/work/tests
+      - ./vision:/work/vision
+
+      # 직접 만든 가상 공간과 물체. 키오스크 모형이 여기 들어간다.
+      - ./sim:/work/sim:ro
+
+      # 비행 기록과 각 기능의 로그
+      - ./logs:/work/log
+
+    # PX4 에 직접 명령을 입력할 수 있게 해준다 (docker compose attach drone)
+    stdin_open: true
+    tty: true

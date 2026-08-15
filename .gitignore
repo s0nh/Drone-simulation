@@ -1,0 +1,12 @@
+# 각자 컴퓨터에서만 쓰는 설정. 나중에 API 키도 들어가므로 올리지 않는다.
+.env
+
+# 비행 기록
+logs/*
+!logs/.gitkeep
+
+__pycache__/
+.venv/
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  우리가 개발에 쓰는 가상 공간.
+
+  Gazebo 기본 공간(바닥 + 햇빛)에 관전용 카메라를 한 대 추가한 것이다.
+  관전 카메라는 드론을 바깥에서 비추는 고정 카메라로, 매장 CCTV 같은 역할을 한다.
+  화면(모니터) 없이도 브라우저로 볼 수 있어서 팀원 전원이 같은 방법으로 본다.
+
+  앞으로 키오스크 모형이 여기에 들어간다.
+
+  사용법: .env 의 PX4_GZ_WORLD 를 kiosk 로 두면 이 공간이 열린다.
+-->
+<sdf version="1.9">
+  <world name="kiosk">
+
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+
+    <scene>
+      <grid>false</grid>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- 관전용 카메라.
+         드론이 뜨는 자리(원점)에서 대각선 뒤쪽 4m, 높이 1.8m 지점에 놓고
+         드론이 이륙해 올라가도 화면 안에 남도록 각도를 맞췄다.
+         pose 는 "x y z 좌우기울기 위아래각도 방향" 순서다.
+         더 멀리서 넓게 보고 싶으면 앞의 세 숫자를 키우면 된다. -->
+    <model name="spectator_camera">
+      <static>true</static>
+      <pose>-2.8 -2.8 1.8 0 0.126 0.785</pose>
+      <link name="link">
+        <sensor name="spectator" type="camera">
+          <topic>spectator</topic>
+          <always_on>1</always_on>
+          <update_rate>15</update_rate>
+          <camera>
+            <horizontal_fov>1.2</horizontal_fov>
+            <image>
+              <width>1280</width>
+              <height>720</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>200</far>
+            </clip>
+          </camera>
+        </sensor>
+      </link>
+    </model>
+
+    <!-- 바닥 -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane><normal>0 0 1</normal><size>1 1</size></plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane><normal>0 0 1</normal><size>500 500</size></plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 햇빛 -->
+    <light name="sunUTC" type="directional">
+      <pose>0 0 500 0 0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <intensity>1</intensity>
+      <direction>0.001 0.625 -0.78</direction>
+      <diffuse>0.904 0.904 0.904 1</diffuse>
+      <specular>0.271 0.271 0.271 1</specular>
+      <attenuation>
+        <range>2000</range>
+        <linear>0</linear>
+        <constant>1</constant>
+        <quadratic>0</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- 드론이 GPS 위치를 계산할 때 기준으로 삼는 지점 -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg>8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+
+  </world>
+</sdf>

@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-"""개발 환경이 제대로 준비됐는지 확인하는 테스트.
-
-컨테이너가 켜진 것과 드론이 실제로 나는 것은 다른 문제라서,
-연결부터 착륙까지 한 번 돌려 본다. 마지막에 PASS 가 나오면 개발을 시작해도 된다.
+""" MAVSDK 로 드론이 잘 조장되는지 확인하는 테스트.
 
 실행
     docker compose exec drone python3 tests/takeoff_test.py
-
-여기서 쓰는 방식(MAVSDK)은 실제 드론에서도 그대로 쓸 수 있다.
 """
 
 import asyncio
@@ -64,7 +59,6 @@ async def main():
     )
     print(f"      현재 높이 {reached.relative_altitude_m:.2f}m")
 
-    # 목표 높이에 막 닿은 직후에는 아직 올라가는 중이라 흔들림처럼 보인다.
     # 자세가 잡힐 때까지 잠깐 두고 나서 잰다.
     print("[4/5] 자세가 잡히길 기다린 뒤, 제자리 비행 8초 확인")
     await asyncio.sleep(5)

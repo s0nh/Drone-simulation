@@ -11,14 +11,12 @@
 #   MAVSDK           파이썬으로 드론에 명령을 보내는 라이브러리
 #
 # 아래 설치 단계는 처음 한 번만 실행된다. 우리가 짠 코드는 이미지에 넣지 않고
-# 실행할 때 폴더를 연결하므로, 코드를 고쳐도 이미지를 다시 만들지 않는다.
+# 실행할 때 폴더를 연결하므로, 코드를 고쳐도 이미지를 다시 빌드할 필요가 없다.
 
 ARG PX4_IMAGE
 FROM ${PX4_IMAGE}
 
 # --- ROS 2 --------------------------------------------------------------------
-# 주의: ROS 2 는 Gazebo 라이브러리 사본을 함께 들고 온다. 바탕 이미지의 Gazebo 와
-# 섞이면 시뮬레이터가 뜨지 않으므로, 실행할 때 환경을 분리한다 (start.sh 참고).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl gnupg ca-certificates \
  && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc \

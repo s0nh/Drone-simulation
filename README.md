@@ -1,6 +1,6 @@
 # Drone-simulation
 
-시각장애인이 음성으로 키오스크를 주문할 수 있게 돕는 드론 프로젝트의 **공용 개발 환경**입니다.
+시각장애인이 음성으로 키오스크를 주문할 수 있게 돕는 드론 프로젝트의 개발 환경입니다.
 
 실제 드론 없이, 팀원 모두가 똑같은 환경에서 개발하기 위한 저장소입니다.
 리눅스 · 윈도우(WSL) · 맥에서 같은 명령으로 동작합니다.
@@ -25,7 +25,7 @@
 
 ---
 
-## 준비물
+## Prequation
 
 Docker 하나뿐입니다.
 
@@ -39,13 +39,9 @@ sudo usermod -aG docker $USER      # 이후 로그아웃했다 다시 로그인
 ```
 `usermod` 를 하지 않으면 모든 명령에 `sudo` 를 붙여야 하고, 나중에 문제가 생깁니다.
 
-> **윈도우(WSL) 사용자 주의**
-> 저장소를 `C:\` 아래(`/mnt/c/...`)에 두면 파일 읽고 쓰는 속도가 10배 이상 느려집니다.
-> 반드시 WSL 안쪽(`~/` 아래)에 받으세요.
-
 ---
 
-## 시작하기
+## Quickstart
 
 ```bash
 git clone https://github.com/s0nh/Drone-simulation.git
@@ -55,14 +51,9 @@ cp .env.example .env     # 설정 파일 만들기
 docker compose up -d     # 시작
 ```
 
-처음 한 번은 이미지를 만드느라 **10분쯤** 걸립니다. 그다음부터는 바로 켜집니다.
-
-켜고 나서 **1분쯤** 지나야 영상이 나옵니다. 화면이 없는 환경이라 그림을 그리는
-준비에 시간이 걸립니다.
-
 ### 제대로 됐는지 확인
 
-드론이 뜨고, 8초 제자리 비행하고, 내려옵니다.
+MAVSDK 코드로 드론이 뜨고, 8초 제자리 비행하고, 내려옵니다.
 
 ```bash
 docker compose exec drone python3 tests/takeoff_test.py
@@ -109,8 +100,7 @@ docker compose down      # 끄기
 |---|---|
 | PX4 + Gazebo | 비행 제어와 물리 시뮬레이션. 드론과 가상 공간 |
 | uXRCE-DDS 통로 | 드론 상태 데이터를 우리 코드가 읽는 형식으로 옮김 |
-| 카메라 중계 | Gazebo 카메라 영상을 우리 코드가 읽는 형식으로 옮김 |
-| 깊이 영상 변환 | 깊이 데이터에 색을 입혀 눈으로 볼 수 있게 함 |
+| 깊이 영상 변환 | 깊이 데이터에 색을 입혀 시각화 |
 | 브라우저 뷰어 | 위 영상들을 웹 주소로 열어줌 |
 
 컨테이너가 켜지면 `docker/drone/start.sh` 가 이 순서로 실행합니다.
@@ -124,8 +114,6 @@ docker compose down      # 끄기
 6. 드론과 가상 공간 띄우기
 ```
 
-기록은 `logs/` 폴더에 기능별 파일로 쌓입니다.
-
 ### 이미지 구성
 
 바탕은 PX4 공식 이미지이고, 그 위에 ROS 2 와 우리에게 필요한 도구를 얹었습니다.
@@ -134,31 +122,7 @@ docker compose down      # 끄기
 
 ---
 
-## Command 
-
-| 하려는 것 | 명령 |
-|---|---|
-| 켜기 / 끄기 | `docker compose up -d` / `docker compose down` |
-| 상태 보기 | `docker compose ps` |
-| 드론 로그 보기 | `docker compose logs -f drone` |
-| 코드 실행 | `docker compose exec drone python3 tests/takeoff_test.py` |
-| 컨테이너 안에서 작업 | `docker compose exec drone bash` |
-| 데이터 목록 보기 | `docker compose exec drone bash -c 'source /opt/ros/jazzy/setup.bash; ros2 topic list'` |
-| PX4 에 직접 명령 | `docker compose attach drone` |
-
-`attach` 로 들어가면 `pxh>` 프롬프트가 나옵니다.
-
-```
-commander takeoff
-commander land
-listener vehicle_local_position     현재 위치가 실시간으로 찍힘
-```
-
-빠져나올 때는 **`Ctrl-P` 다음 `Ctrl-Q`** 입니다. `Ctrl-C` 를 누르면 드론이 꺼집니다.
-
----
-
-## 우리 코드가 쓰는 데이터
+## ROS2 Topic 이름
 
 ### 카메라
 
@@ -170,11 +134,6 @@ listener vehicle_local_position     현재 위치가 실시간으로 찍힘
 | `/camera/points` | 3D 점 덩어리 — 주변 공간의 입체 형태 |
 | `/camera/depth_view` | 깊이 데이터에 색을 입힌 것. 사람이 보는 용도 |
 | `/spectator/image_raw` | 관전 카메라 |
-
-`/camera/depth` 는 그림이 아니라 숫자입니다. 픽셀 하나하나가 밝기가 아니라
-"그 방향으로 몇 미터 떨어져 있는가"를 담고 있습니다. 그래서 그대로 화면에 그리면
-거의 검게 보입니다. 거리를 잴 때는 이 원본을 쓰고, 눈으로 확인할 때는
-`/camera/depth_view` 를 봅니다.
 
 ### 드론 상태
 
@@ -200,16 +159,14 @@ docker/drone/
   start.sh              컨테이너가 켜질 때 무엇을 어떤 순서로 실행하는지
 
 sim/
-  worlds/kiosk.sdf      우리가 쓰는 가상 공간 (관전 카메라 포함)
+  worlds/kiosk.sdf      우리가 쓰는 가상 공간
   models/               직접 만든 가상 물체 — 키오스크 모형이 여기 들어갑니다
 
 vision/
-  depth_view.py         깊이 데이터에 색 입히기
+  depth_view.py         깊이 데이터 시각화
 
 tests/
-  takeoff_test.py       환경이 정상인지 확인하는 테스트
-
-logs/                   비행 기록과 기능별 로그 (깃에 올리지 않음)
+  takeoff_test.py       환경이 정상 작동하는지 확인하는 테스트
 ```
 
 ---
@@ -236,17 +193,6 @@ logs/                   비행 기록과 기능별 로그 (깃에 올리지 않�
 
 ---
 
-## 코드 작성 방향성
-
-시뮬레이션 코드를 그대로 실제 하드웨어에 적용할 수 있게 만드는 것이 목표입니다.
-시뮬레이션에서 테스트 하고 테스트 할 때 사용한 코드 그대로 하드웨어에 적용하면 좋을 것 같습니다.
-
-
-- Global path planning은 서버 컴퓨터로 추론.
-- Local path planning은 Raspberry Pi에서 진행.
-
----
-
 ## 실제 장비와의 대응
 
 | 실제 장비 | 시뮬레이션 |
@@ -254,17 +200,6 @@ logs/                   비행 기록과 기능별 로그 (깃에 올리지 않�
 | Holybro X500 V2 + Pixhawk 6C | PX4 시뮬레이터의 `gz_x500_depth` 기체 |
 | Intel RealSense D435i (깊이 카메라) | Gazebo 의 깊이 카메라 센서 |
 
-실제로는 이렇게 두 대로 나뉩니다.
-
-```
-[Pixhawk 6C]  ── USB/시리얼 ──  [보조 컴퓨터 (라즈베리파이 등)]
- PX4                              uXRCE-DDS 통로
- (비행 제어)                       ROS 2 + 우리 코드
-```
-
-지금 시뮬레이션에서는 이 **두 대 몫을 컨테이너 하나가** 하고 있습니다. 연결이 시리얼
-대신 내부 통신일 뿐 구성은 같아서, 실물로 옮길 때 우리 코드는 그대로 보조 컴퓨터로
-옮겨갑니다.
 
 ---
 
@@ -276,28 +211,11 @@ logs/                   비행 기록과 기능별 로그 (깃에 올리지 않�
 
 ---
 
-## 문제가 생기면
-
-| 증상 | 해결 |
-|---|---|
-| `docker: unknown command: docker compose` | `sudo apt install -y docker-compose-v2` |
-| `permission denied ... docker.sock` | `sudo usermod -aG docker $USER` 후 다시 로그인 |
-| 브라우저에 영상이 안 보임 | 켠 뒤 1분쯤 기다리세요. 그래도 안 나오면 `logs/camera-bridge.log` 확인 |
-| 테스트가 연결에서 멈춤 | QGroundControl 이나 이전 시뮬레이션이 포트를 쓰는 중입니다. `docker compose down` 후 다시 시도 |
-| 컨테이너가 바로 꺼짐 | `docker compose logs drone` 의 마지막 줄을 확인하세요 |
-| `bad interpreter: ...^M` | 윈도우 줄바꿈 문제. 저장소를 지우고 다시 `git clone` |
-| 빌드가 너무 느림 (WSL) | 저장소가 `/mnt/c` 에 있는 경우입니다. WSL 안쪽으로 옮기세요 |
-
-기능별 로그는 `logs/` 폴더에 따로 쌓입니다.
-`camera-bridge.log`, `viewer.log`, `depth-view.log`, `data-link.log`
-
----
-
 ## 앞으로 할 일
 
 1. 가상 공간에 키오스크 세우기 (화면은 Flutter 로 만든 키오스크 이미지를 붙입니다)
 2. companion computer 구현 및 드론에 막대기, 라즈베리파이 부착?
 3. SLAM, Vision, Ai Agent 개발
-4. 음성 명령 받아 주문까지 이어붙이기
+4. 음성 명령 받아 주문까지 할 수 있게 연결 
 5. 통신이 느려졌을 때 어디까지 버티는지 측정
 6. 로봇팔 붙이기 ← 2차 목표

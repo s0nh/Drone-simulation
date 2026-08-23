@@ -2,11 +2,9 @@
 #
 #   docker compose up -d                                     시작
 #   docker compose exec drone python3 tests/takeoff_test.py   코드 실행
-#   docker compose logs -f drone                              드론 로그 보기
 #   docker compose down                                       종료
 #
 # 컨테이너는 하나뿐이며, 그 안에서 드론·가상 공간·카메라 중계·조종이 함께 돈다.
-# 컨테이너 안에서 무엇이 어떤 순서로 켜지는지는 docker/drone/start.sh 를 보면 된다.
 
 name: dronesim
 
@@ -33,7 +31,7 @@ services:
       HEADLESS: "1"                            # Gazebo 창을 띄우지 않음
 
     volumes:
-      # 우리가 짠 코드. 이미지 안에 넣지 않고 연결하므로 고쳐도 바로 반영된다.
+      # 우리가 짠 source code.
       - ./tests:/work/tests
       - ./vision:/work/vision
 

@@ -52,7 +52,7 @@ RUN apt-get update \
  && ldconfig \
  && rm -rf /tmp/agent /var/lib/apt/lists/*
 
-# --- 드론 조종 -----------------------------------------------------------------
+# --- 드론 조종 MAVSDK -----------------------------------------------------------------
 RUN pip install --no-cache-dir --break-system-packages "mavsdk>=2.0,<3.0"
 
 COPY start.sh /start.sh
